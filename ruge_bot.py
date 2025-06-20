@@ -2,8 +2,8 @@ from playwright.sync_api import sync_playwright, TimeoutError
 import csv, time, os, sys
 from procesar import procesar_tramite
 
-USER      = os.getenv("RUGE_USER")      or "c.calderon"
-PASSWORD  = os.getenv("RUGE_PASS")      or "ma7ia5cald3r0n"
+USER      = os.getenv("RUGE_USER")      or ""
+PASSWORD  = os.getenv("RUGE_PASS")      or ""
 HEADLESS  = False                        # False  navegador
 SIS_LISTA = ["202505535", "202505536"] 
 

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-gray-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automatizador RUGE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <style>
+        #logs::-webkit-scrollbar { width: 8px; }
+        #logs::-webkit-scrollbar-track { background: #1f2937; }
+        #logs::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px;}
+        #logs::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+    </style>
+</head>
+<body class="h-full flex items-center justify-center text-white">
+
+    <div class="w-full max-w-4xl mx-auto p-4 md:p-8">
+        <div class="bg-gray-800 rounded-lg shadow-xl overflow-hidden">
+            <div class="p-6 border-b border-gray-700">
+                <h1 class="text-2xl font-bold text-cyan-400">Automatizador de Verificación Física RUGE</h1>
+                <p class="text-gray-400 mt-1">Ingresa tus credenciales y la lista de códigos SIS a procesar.</p>
+            </div>
+
+            <div class="md:grid md:grid-cols-2">
+                <div class="p-6">
+                    <form id="control-form">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="user" class="block text-sm font-medium text-gray-300">Usuario</label>
+                                <input type="text" id="user" value="" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
+                            </div>
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-300">Contraseña</label>
+                                <input type="password" id="password" value="" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">
+                            </div>
+                            <div>
+                                <label for="sis-list" class="block text-sm font-medium text-gray-300">Lista de Códigos SIS (uno por línea)</label>
+                                <textarea id="sis-list" rows="5" class="mt-1 block w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-cyan-500 focus:border-cyan-500">202000242</textarea>
+                            </div>
+                        </div>
+                        <div class="mt-6">
+                            <button type="submit" id="submit-btn" class="w-full inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-cyan-600 hover:bg-cyan-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-cyan-500 disabled:bg-gray-500 disabled:cursor-not-allowed">
+                                Iniciar Proceso
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="p-6 bg-gray-900/50 flex flex-col">
+                    <h2 class="text-lg font-semibold text-gray-300 mb-2">Logs en Tiempo Real</h2>
+                    <div id="logs" class="flex-grow bg-black rounded-md p-3 text-sm font-mono overflow-y-auto h-64 md:h-full border border-gray-700">
+                        <p class="text-gray-500">Esperando para iniciar el proceso...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const socket = io();
+            const form = document.getElementById('control-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const logsDiv = document.getElementById('logs');
+
+
+            socket.on('connect', () => {
+                console.log('Conectado al servidor!');
+            });
+
+            socket.on('log', (msg) => {
+                const p = document.createElement('p');
+                p.textContent = msg.data;
+                if (msg.data.includes('✅') || msg.data.includes('✔️')) p.className = 'text-green-400';
+                if (msg.data.includes('❌') || msg.data.includes('⚠️') || msg.data.includes('🚨')) p.className = 'text-red-400';
+                if (msg.data.includes('▶︎')) p.className = 'text-cyan-400';
+                
+                logsDiv.appendChild(p);
+                logsDiv.scrollTop = logsDiv.scrollHeight;
+            });
+
+            socket.on('process_finished', () => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Iniciar Proceso';
+            });
+
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault(); 
+
+                logsDiv.innerHTML = '<p class="text-yellow-400">Iniciando, por favor espera...</p>';
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Procesando...';
+
+                const user = document.getElementById('user').value;
+                const password = document.getElementById('password').value;
+                const sis_list = document.getElementById('sis-list').value;
+                socket.emit('start_process', { user, password, sis_list });
+            });
+        });
+    </script>
+</body>
+</html>

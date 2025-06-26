@@ -6,3 +6,5 @@ __pycache__/.venv/
 .venv/
 __pycache__/
 *.log
+build/
+dist/

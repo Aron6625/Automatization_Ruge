@@ -1,0 +1,21 @@
+{
+  "name": "Automatizador RUGE",
+  "short_name": "Aprobar RUGE",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#007BFF",
+  "description": "Automatizador para aprobar Estudiantes nuevos de RUGE",
+  "icons": [
+    {
+      "src": "dreicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "dreicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

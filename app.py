@@ -89,8 +89,16 @@ def run_automation_process(user, password, sis_list):
 
 @app.route('/')
 def index():
-    """Sirve la página principal (nuestro frontend)."""
+    """Sirve la Página Principal (frontend)."""
     return render_template('index.html')
+
+
+@app.route("/<path:path>")
+def catch_all(path):
+    """Redirige todas las demás rutas al index para la PWA."""
+    return render_template('index.html')
+
+
 
 @socketio.on('start_process')
 def handle_start_process(json_data):
